@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ .title }}</title>
+</head>
+<body>
+    <h1>Регистрация</h1>
+
+    <form id="registerForm">
+        <div>
+            <label for="registerLogin">Логин</label>
+            <input id="registerLogin" name="login" type="text" required>
+        </div>
+
+        <div>
+            <label for="registerPassword">Пароль</label>
+            <input id="registerPassword" name="password" type="password" required>
+        </div>
+
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+
+    <p id="registerResult"></p>
+
+    <p>
+        Уже есть аккаунт?
+        <a href="/login">Войти</a>
+    </p>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
