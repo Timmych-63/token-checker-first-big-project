@@ -15,6 +15,7 @@ func main() {
 	router.Static("/static", "./web/static")
 
 	handlers.RegisterPageRouters(router)
+	handlers.RegisterAPIRoutes(router)
 
 	log.Println("Сервер запущен на 8080")
 

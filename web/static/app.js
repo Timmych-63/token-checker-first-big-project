@@ -9,18 +9,32 @@ if (goToRegisterButton) {
 const registerForm = document.getElementById("registerForm");
 
 if (registerForm) {
-    registerForm.addEventListener("submit", (event) => {
+    registerForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const login = document.getElementById("registerLogin").value;
         const password = document.getElementById("registerPassword").value;
-
-        console.log("Регистрация:");
-        console.log("Логин:", login);
-        console.log("Пароль:", password);
-
         const result = document.getElementById("registerResult");
-        result.textContent = "Пока данные просто выводятся в консоль.";
+
+        const response = await fetch("/api/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body:  JSON.stringify({
+                login: login,
+                password: password,
+            }),
+        });
+
+        const data = await response.json();
+
+        if(!response.ok) {
+            result.textContent = data.message;
+            return;
+        }        
+
+        result.textContent = data.message;
     });
 }
 
