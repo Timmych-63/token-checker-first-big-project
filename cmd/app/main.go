@@ -5,6 +5,7 @@ import (
 
 	"TOKENCHECKER/internal/config"
 	"TOKENCHECKER/internal/handlers"
+	"TOKENCHECKER/internal/repository"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,6 +15,29 @@ func main() {
 	if err != nil {
 		log.Fatal("Ошибка конфигурации: ", err)
 	}
+
+	db, err := repository.ConnectDatabase(cfg)
+	if err != nil {
+		log.Fatal("Ошибка подключения к базе: ", err)
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatal(
+			"Ошибка получения подключения для закрытия: ",
+			err,
+		)
+	}
+
+	defer func() {
+		err := sqlDB.Close()
+		if err != nil {
+			log.Println(
+				"Ошибка закрытия подключения к базе:",
+				err,
+			)
+		}
+	}()
 
 	log.Printf(
 		"Настройки базы загружены: host=%s port=%s db=%s user=%s",
