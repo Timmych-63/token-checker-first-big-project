@@ -1,8 +1,9 @@
 package repository
 
 import (
-	"TOKENCHECKER/internal/model"
 	"fmt"
+
+	"TOKENCHECKER/internal/model"
 
 	"gorm.io/gorm"
 )
@@ -10,9 +11,13 @@ import (
 func Migrate(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&model.User{},
+		&model.Session{},
 	)
 	if err != nil {
-		return fmt.Errorf("не удалось выполнить имграцию базы данный: %w", err)
+		return fmt.Errorf(
+			"не удалось выполнить миграцию базы данных: %w",
+			err,
+		)
 	}
 
 	return nil

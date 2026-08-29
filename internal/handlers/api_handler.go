@@ -11,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const sessionCookieMaxAge = 7 * 24 * 60 * 60
+
 type APIHandler struct {
 	authService *service.AuthService
 }
@@ -107,7 +109,7 @@ func (h *APIHandler) loginUser(c *gin.Context) {
 		return
 	}
 
-	err = h.authService.LoginUser(request)
+	token, err := h.authService.LoginUser(request)
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidCredentials) {
 			c.JSON(
@@ -132,6 +134,18 @@ func (h *APIHandler) loginUser(c *gin.Context) {
 		)
 		return
 	}
+
+	c.SetSameSite(http.SameSiteLaxMode)
+
+	c.SetCookie(
+		"session_token",
+		token,
+		sessionCookieMaxAge,
+		"/",
+		"",
+		false,
+		true,
+	)
 
 	c.JSON(
 		http.StatusOK,

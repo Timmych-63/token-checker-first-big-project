@@ -1,9 +1,14 @@
 package service
 
 import (
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"TOKENCHECKER/internal/model"
@@ -11,6 +16,8 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 )
+
+const SessionDuration = 7 * 24 * time.Hour
 
 var (
 	ErrLoginRequired = errors.New(
@@ -47,14 +54,17 @@ var (
 )
 
 type AuthService struct {
-	userRepository *repository.UserRepository
+	userRepository    *repository.UserRepository
+	sessionRepository *repository.SessionRepository
 }
 
 func NewAuthService(
 	userRepository *repository.UserRepository,
+	sessionRepository *repository.SessionRepository,
 ) *AuthService {
 	return &AuthService{
-		userRepository: userRepository,
+		userRepository:    userRepository,
+		sessionRepository: sessionRepository,
 	}
 }
 
@@ -131,24 +141,24 @@ func (s *AuthService) RegisterUser(
 
 func (s *AuthService) LoginUser(
 	request model.LoginRequest,
-) error {
+) (string, error) {
 	login := strings.TrimSpace(request.Login)
 	password := request.Password
 
 	if login == "" || password == "" {
-		return ErrInvalidCredentials
+		return "", ErrInvalidCredentials
 	}
 
 	user, err := s.userRepository.FindByLogin(login)
 	if err != nil {
-		return fmt.Errorf(
+		return "", fmt.Errorf(
 			"не удалось найти пользователя при входе: %w",
 			err,
 		)
 	}
 
 	if user == nil {
-		return ErrInvalidCredentials
+		return "", ErrInvalidCredentials
 	}
 
 	err = bcrypt.CompareHashAndPassword(
@@ -156,15 +166,63 @@ func (s *AuthService) LoginUser(
 		[]byte(password),
 	)
 	if err != nil {
-		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			return ErrInvalidCredentials
+		if errors.Is(
+			err,
+			bcrypt.ErrMismatchedHashAndPassword,
+		) {
+			return "", ErrInvalidCredentials
 		}
 
-		return fmt.Errorf(
+		return "", fmt.Errorf(
 			"не удалось проверить пароль: %w",
 			err,
 		)
 	}
 
-	return nil
+	token, tokenHash, err := generateSessionToken()
+	if err != nil {
+		return "", fmt.Errorf(
+			"не удалось создать токен сессии: %w",
+			err,
+		)
+	}
+
+	session := &model.Session{
+		UserID:    user.ID,
+		TokenHash: tokenHash,
+		ExpiresAt: time.Now().Add(SessionDuration),
+	}
+
+	err = s.sessionRepository.Create(session)
+	if err != nil {
+		return "", fmt.Errorf(
+			"не удалось создать сессию: %w",
+			err,
+		)
+	}
+
+	return token, nil
+}
+
+func generateSessionToken() (
+	string,
+	string,
+	error,
+) {
+	randomBytes := make([]byte, 32)
+
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		return "", "", err
+	}
+
+	token := base64.RawURLEncoding.EncodeToString(
+		randomBytes,
+	)
+
+	hash := sha256.Sum256([]byte(token))
+
+	tokenHash := hex.EncodeToString(hash[:])
+
+	return token, tokenHash, nil
 }

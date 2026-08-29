@@ -68,8 +68,11 @@ func main() {
 
 	userRepository := repository.NewUserRepository(db)
 
+	sessionRepository := repository.NewSessionRepository(db)
+
 	authService := service.NewAuthService(
 		userRepository,
+		sessionRepository,
 	)
 
 	router := gin.Default()

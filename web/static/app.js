@@ -45,6 +45,8 @@ if (registerForm) {
 
 // Вход
 
+// Вход
+
 const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
@@ -70,10 +72,17 @@ if (loginForm) {
             const data = await response.json();
 
             result.textContent = data.message;
+
+            if (!response.ok) {
+                return;
+            }
+
+            window.location.href = "/cabinet";
         } catch (error) {
             console.error("Ошибка запроса входа:", error);
 
-            result.textContent = "Не удалось связаться с сервером.";
+            result.textContent =
+                "Не удалось связаться с сервером.";
         }
     });
 }
