@@ -21,6 +21,13 @@ func main() {
 		log.Fatal("Ошибка подключения к базе: ", err)
 	}
 
+	err = repository.Migrate(db)
+	if err != nil {
+		log.Fatal("Ошибка миграции: ", err)
+	}
+
+	log.Println("Миграции базы данных успешно выполнены")
+
 	sqlDB, err := db.DB()
 	if err != nil {
 		log.Fatal(
