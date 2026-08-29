@@ -40,6 +40,10 @@ var (
 	ErrLoginAlreadyExists = errors.New(
 		"пользователь с таким логином уже существует",
 	)
+
+	ErrInvalidCredentials = errors.New(
+		"неверный логин или пароль",
+	)
 )
 
 type AuthService struct {
@@ -118,6 +122,46 @@ func (s *AuthService) RegisterUser(
 	if err != nil {
 		return fmt.Errorf(
 			"не удалось создать пользователя: %w",
+			err,
+		)
+	}
+
+	return nil
+}
+
+func (s *AuthService) LoginUser(
+	request model.LoginRequest,
+) error {
+	login := strings.TrimSpace(request.Login)
+	password := request.Password
+
+	if login == "" || password == "" {
+		return ErrInvalidCredentials
+	}
+
+	user, err := s.userRepository.FindByLogin(login)
+	if err != nil {
+		return fmt.Errorf(
+			"не удалось найти пользователя при входе: %w",
+			err,
+		)
+	}
+
+	if user == nil {
+		return ErrInvalidCredentials
+	}
+
+	err = bcrypt.CompareHashAndPassword(
+		[]byte(user.PasswordHash),
+		[]byte(password),
+	)
+	if err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return ErrInvalidCredentials
+		}
+
+		return fmt.Errorf(
+			"не удалось проверить пароль: %w",
 			err,
 		)
 	}

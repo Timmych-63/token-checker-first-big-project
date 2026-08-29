@@ -26,6 +26,7 @@ func RegisterAPIRoutes(
 	api := router.Group("/api")
 
 	api.POST("/register", handler.registerUser)
+	api.POST("/login", handler.loginUser)
 }
 
 func (h *APIHandler) registerUser(c *gin.Context) {
@@ -88,6 +89,54 @@ func (h *APIHandler) registerUser(c *gin.Context) {
 		http.StatusCreated,
 		model.RegisterResponse{
 			Message: "регистрация выполнена",
+		},
+	)
+}
+
+func (h *APIHandler) loginUser(c *gin.Context) {
+	var request model.LoginRequest
+
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			model.LoginResponse{
+				Message: "некорректные данные",
+			},
+		)
+		return
+	}
+
+	err = h.authService.LoginUser(request)
+	if err != nil {
+		if errors.Is(err, service.ErrInvalidCredentials) {
+			c.JSON(
+				http.StatusUnauthorized,
+				model.LoginResponse{
+					Message: err.Error(),
+				},
+			)
+			return
+		}
+
+		log.Printf(
+			"Ошибка входа пользователя: %v",
+			err,
+		)
+
+		c.JSON(
+			http.StatusInternalServerError,
+			model.LoginResponse{
+				Message: "внутренняя ошибка сервера",
+			},
+		)
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		model.LoginResponse{
+			Message: "вход выполнен",
 		},
 	)
 }
