@@ -2,32 +2,92 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
     <title>{{ .title }}</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/styles.css?v=1"
+    >
 </head>
+
 <body>
-    <h1>Вход</h1>
+    <main class="page">
+        <section class="card">
+            <a class="logo" href="/">
+                <span class="logo__mark">T</span>
+                TOKENCHECKER
+            </a>
 
-    <form id="loginForm">
-        <div>
-            <label for="loginLogin">Логин</label>
-            <input id="loginLogin" name="login" type="text" required>
-        </div>
+            <h1>С возвращением</h1>
 
-        <div>
-            <label for="loginPassword">Пароль</label>
-            <input id="loginPassword" name="password" type="password" required>
-        </div>
+            <p class="subtitle">
+                Войди в аккаунт, чтобы открыть
+                своё сохранённое сообщение.
+            </p>
 
-        <button type="submit">Войти</button>
-    </form>
+            <form
+                id="loginForm"
+                class="form"
+                method="post"
+                action="/api/login"
+            >
+                <div class="field">
+                    <label for="loginLogin">
+                        Логин
+                    </label>
 
-    <p id="loginResult"></p>
+                    <input
+                        id="loginLogin"
+                        name="login"
+                        type="text"
+                        autocomplete="username"
+                        placeholder="Твой логин"
+                        required
+                    >
+                </div>
 
-    <p>
-        Нет аккаунта?
-        <a href="/register">Зарегистрироваться</a>
-    </p>
+                <div class="field">
+                    <label for="loginPassword">
+                        Пароль
+                    </label>
 
-    <script src="/static/app.js"></script>
+                    <input
+                        id="loginPassword"
+                        name="password"
+                        type="password"
+                        autocomplete="current-password"
+                        placeholder="Твой пароль"
+                        required
+                    >
+                </div>
+
+                <button
+                    class="button button--primary button--full"
+                    type="submit"
+                >
+                    Войти
+                </button>
+            </form>
+
+            <p
+                id="loginResult"
+                class="result"
+            ></p>
+
+            <p class="footer-link">
+                Нет аккаунта?
+                <a href="/register">
+                    Зарегистрироваться
+                </a>
+            </p>
+        </section>
+    </main>
+
+    <script src="/static/app.js?v=7"></script>
 </body>
 </html>

@@ -2,32 +2,91 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
     <title>{{ .title }}</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/styles.css?v=1"
+    >
 </head>
+
 <body>
-    <h1>Регистрация</h1>
+    <main class="page">
+        <section class="card">
+            <a class="logo" href="/">
+                <span class="logo__mark">T</span>
+                TOKENCHECKER
+            </a>
 
-    <form id="registerForm">
-        <div>
-            <label for="registerLogin">Логин</label>
-            <input id="registerLogin" name="login" type="text" required>
-        </div>
+            <h1>Регистрация</h1>
 
-        <div>
-            <label for="registerPassword">Пароль</label>
-            <input id="registerPassword" name="password" type="password" required>
-        </div>
+            <p class="subtitle">
+                Создай аккаунт, чтобы сохранить
+                сообщение для будущего себя.
+            </p>
 
-        <button type="submit">Зарегистрироваться</button>
-    </form>
+            <form
+                id="registerForm"
+                class="form"
+            >
+                <div class="field">
+                    <label for="registerLogin">
+                        Логин
+                    </label>
 
-    <p id="registerResult"></p>
+                    <input
+                        id="registerLogin"
+                        name="login"
+                        type="text"
+                        minlength="3"
+                        maxlength="50"
+                        autocomplete="username"
+                        placeholder="Например, firstuser"
+                        required
+                    >
+                </div>
 
-    <p>
-        Уже есть аккаунт?
-        <a href="/login">Войти</a>
-    </p>
+                <div class="field">
+                    <label for="registerPassword">
+                        Пароль
+                    </label>
 
-    <script src="/static/app.js"></script>
+                    <input
+                        id="registerPassword"
+                        name="password"
+                        type="password"
+                        minlength="8"
+                        autocomplete="new-password"
+                        placeholder="Минимум 8 символов"
+                        required
+                    >
+                </div>
+
+                <button
+                    class="button button--primary button--full"
+                    type="submit"
+                >
+                    Зарегистрироваться
+                </button>
+            </form>
+
+            <p
+                id="registerResult"
+                class="result"
+            ></p>
+
+            <p class="footer-link">
+                Уже есть аккаунт?
+                <a href="/login">Войти</a>
+            </p>
+        </section>
+    </main>
+
+    <script src="/static/app.js?v=7"></script>
 </body>
 </html>

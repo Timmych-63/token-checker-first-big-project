@@ -2,15 +2,59 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
     <title>{{ .title }}</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/styles.css?v=1"
+    >
 </head>
+
 <body>
-    <h1>Добро пожаловать</h1>
+    <main class="page">
+        <section class="card hero">
+            <div class="logo">
+                <span class="logo__mark">T</span>
+                TOKENCHECKER
+            </div>
 
-    <p>Это начальная страница приложения.</p>
+            <div class="hero__badge">
+                Сообщение будущему себе
+            </div>
 
-    <button id="goToRegisterBtn">Псевдо-регистрация</button>
+            <h1>
+                Оставь сообщение следующей версии себя
+            </h1>
 
-    <script src="/static/app.js"></script>
+            <p class="subtitle">
+                Создай аккаунт, сохрани важную мысль
+                и вернись к ней позже.
+            </p>
+
+            <div class="hero__actions">
+                <button
+                    id="goToRegisterBtn"
+                    class="button button--primary button--full"
+                    type="button"
+                >
+                    Создать аккаунт
+                </button>
+
+                <a
+                    class="button button--secondary button--full"
+                    href="/login"
+                >
+                    Войти
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/app.js?v=7"></script>
 </body>
 </html>
