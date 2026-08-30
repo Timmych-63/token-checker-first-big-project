@@ -86,7 +86,10 @@ func main() {
 		"./web/static",
 	)
 
-	handlers.RegisterPageRoutes(router)
+	handlers.RegisterPageRoutes(
+		router,
+		authService,
+	)
 
 	handlers.RegisterAPIRoutes(
 		router,

@@ -3,14 +3,35 @@ package handlers
 import (
 	"net/http"
 
+	"TOKENCHECKER/internal/service"
+
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterPageRoutes(router *gin.Engine) {
-	router.GET("/", showHomePage)
-	router.GET("/register", showRegisterPage)
-	router.GET("/login", showLoginPage)
-	router.GET("/cabinet", showCabinetPage)
+func RegisterPageRoutes(
+	router *gin.Engine,
+	authService *service.AuthService,
+) {
+	router.GET(
+		"/",
+		showHomePage,
+	)
+
+	router.GET(
+		"/register",
+		showRegisterPage,
+	)
+
+	router.GET(
+		"/login",
+		showLoginPage,
+	)
+
+	router.GET(
+		"/cabinet",
+		requirePageAuth(authService),
+		showCabinetPage,
+	)
 }
 
 func showHomePage(c *gin.Context) {

@@ -51,6 +51,10 @@ var (
 	ErrInvalidCredentials = errors.New(
 		"неверный логин или пароль",
 	)
+
+	ErrUnauthorized = errors.New(
+		"пользователь не авторизован",
+	)
 )
 
 type AuthService struct {
@@ -204,6 +208,46 @@ func (s *AuthService) LoginUser(
 	return token, nil
 }
 
+func (s *AuthService) AuthenticateSessionToken(
+	token string,
+) (uint, error) {
+	if strings.TrimSpace(token) == "" {
+		return 0, ErrUnauthorized
+	}
+
+	tokenHash := hashSessionToken(token)
+
+	session, err := s.sessionRepository.FindByTokenHash(
+		tokenHash,
+	)
+	if err != nil {
+		return 0, fmt.Errorf(
+			"не удалось проверить сессию: %w",
+			err,
+		)
+	}
+
+	if session == nil {
+		return 0, ErrUnauthorized
+	}
+
+	if !time.Now().Before(session.ExpiresAt) {
+		err = s.sessionRepository.DeleteByTokenHash(
+			tokenHash,
+		)
+		if err != nil {
+			return 0, fmt.Errorf(
+				"не удалось удалить просроченную сессию: %w",
+				err,
+			)
+		}
+
+		return 0, ErrUnauthorized
+	}
+
+	return session.UserID, nil
+}
+
 func generateSessionToken() (
 	string,
 	string,
@@ -220,9 +264,17 @@ func generateSessionToken() (
 		randomBytes,
 	)
 
-	hash := sha256.Sum256([]byte(token))
-
-	tokenHash := hex.EncodeToString(hash[:])
+	tokenHash := hashSessionToken(token)
 
 	return token, tokenHash, nil
+}
+
+func hashSessionToken(token string) string {
+	hash := sha256.Sum256(
+		[]byte(token),
+	)
+
+	return hex.EncodeToString(
+		hash[:],
+	)
 }
