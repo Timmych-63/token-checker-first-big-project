@@ -380,3 +380,42 @@ h2 {
         width: 100%;
     }
 }
+
+.result--success {
+    color: var(--success);
+}
+
+.result--error {
+    color: var(--danger);
+}
+
+.button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+    transform: none;
+}
+
+.button--loading {
+    position: relative;
+}
+
+.button--loading::before {
+    content: "";
+
+    width: 16px;
+    height: 16px;
+
+    margin-right: 9px;
+
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: white;
+    border-radius: 50%;
+
+    animation: button-spin 0.7s linear infinite;
+}
+
+@keyframes button-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

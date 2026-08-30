@@ -1,4 +1,57 @@
-const goToRegisterButton = document.getElementById("goToRegisterBtn");
+function showResult(element, message, type = "") {
+    if (!element) {
+        return;
+    }
+
+    element.textContent = message;
+
+    element.classList.remove(
+        "result--success",
+        "result--error"
+    );
+
+    if (type === "success") {
+        element.classList.add("result--success");
+    }
+
+    if (type === "error") {
+        element.classList.add("result--error");
+    }
+}
+
+
+function setButtonLoading(
+    button,
+    loading,
+    loadingText = "Загрузка..."
+) {
+    if (!button) {
+        return;
+    }
+
+    if (loading) {
+        button.dataset.originalText = button.textContent;
+        button.disabled = true;
+        button.classList.add("button--loading");
+        button.textContent = loadingText;
+
+        return;
+    }
+
+    button.disabled = false;
+    button.classList.remove("button--loading");
+
+    if (button.dataset.originalText) {
+        button.textContent = button.dataset.originalText;
+        delete button.dataset.originalText;
+    }
+}
+
+
+// Главная страница
+
+const goToRegisterButton =
+    document.getElementById("goToRegisterBtn");
 
 if (goToRegisterButton) {
     goToRegisterButton.addEventListener("click", () => {
@@ -9,101 +62,204 @@ if (goToRegisterButton) {
 
 // Регистрация
 
-const registerForm = document.getElementById("registerForm");
+const registerForm =
+    document.getElementById("registerForm");
 
 if (registerForm) {
-    registerForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
+    registerForm.addEventListener(
+        "submit",
+        async (event) => {
+            event.preventDefault();
 
-        const login = document.getElementById("registerLogin").value;
-        const password = document.getElementById("registerPassword").value;
-        const result = document.getElementById("registerResult");
+            const login =
+                document.getElementById("registerLogin").value;
 
-        try {
-            const response = await fetch("/api/register", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    login: login,
-                    password: password,
-                }),
-            });
+            const password =
+                document.getElementById("registerPassword").value;
 
-            const data = await response.json();
+            const result =
+                document.getElementById("registerResult");
 
-            result.textContent = data.message;
-        } catch (error) {
-            console.error(
-                "Ошибка запроса регистрации:",
-                error,
+            const button =
+                registerForm.querySelector(
+                    'button[type="submit"]'
+                );
+
+            showResult(result, "");
+
+            setButtonLoading(
+                button,
+                true,
+                "Регистрация..."
             );
 
-            result.textContent =
-                "Не удалось связаться с сервером.";
+            try {
+                const response = await fetch(
+                    "/api/register",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+
+                        body: JSON.stringify({
+                            login: login,
+                            password: password,
+                        }),
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showResult(
+                        result,
+                        data.message,
+                        "error"
+                    );
+
+                    return;
+                }
+
+                showResult(
+                    result,
+                    data.message,
+                    "success"
+                );
+            } catch (error) {
+                console.error(
+                    "Ошибка запроса регистрации:",
+                    error
+                );
+
+                showResult(
+                    result,
+                    "Не удалось связаться с сервером.",
+                    "error"
+                );
+            } finally {
+                setButtonLoading(button, false);
+            }
         }
-    });
+    );
 }
 
 
 // Вход
 
-const loginForm = document.getElementById("loginForm");
+const loginForm =
+    document.getElementById("loginForm");
 
 if (loginForm) {
-    loginForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
+    loginForm.addEventListener(
+        "submit",
+        async (event) => {
+            event.preventDefault();
 
-        const login = document.getElementById("loginLogin").value;
-        const password = document.getElementById("loginPassword").value;
-        const result = document.getElementById("loginResult");
+            const login =
+                document.getElementById("loginLogin").value;
 
-        try {
-            const response = await fetch("/api/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    login: login,
-                    password: password,
-                }),
-            });
+            const password =
+                document.getElementById("loginPassword").value;
 
-            const data = await response.json();
+            const result =
+                document.getElementById("loginResult");
 
-            result.textContent = data.message;
+            const button =
+                loginForm.querySelector(
+                    'button[type="submit"]'
+                );
 
-            if (!response.ok) {
-                return;
-            }
+            showResult(result, "");
 
-            window.location.href = "/cabinet";
-        } catch (error) {
-            console.error(
-                "Ошибка запроса входа:",
-                error,
+            setButtonLoading(
+                button,
+                true,
+                "Входим..."
             );
 
-            result.textContent =
-                "Не удалось связаться с сервером.";
+            try {
+                const response = await fetch(
+                    "/api/login",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+
+                        body: JSON.stringify({
+                            login: login,
+                            password: password,
+                        }),
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showResult(
+                        result,
+                        data.message,
+                        "error"
+                    );
+
+                    return;
+                }
+
+                showResult(
+                    result,
+                    data.message,
+                    "success"
+                );
+
+                window.location.href = "/cabinet";
+            } catch (error) {
+                console.error(
+                    "Ошибка запроса входа:",
+                    error
+                );
+
+                showResult(
+                    result,
+                    "Не удалось связаться с сервером.",
+                    "error"
+                );
+            } finally {
+                setButtonLoading(button, false);
+            }
         }
-    });
+    );
 }
 
 
 // Сообщение
 
-const messageForm = document.getElementById("messageForm");
+const messageForm =
+    document.getElementById("messageForm");
 
 if (messageForm) {
-    const messageText = document.getElementById("messageText");
-    const messageResult = document.getElementById("messageResult");
+    const messageText =
+        document.getElementById("messageText");
+
+    const messageResult =
+        document.getElementById("messageResult");
+
+    const saveButton =
+        messageForm.querySelector(
+            'button[type="submit"]'
+        );
 
     const loadMessage = async () => {
+        showResult(
+            messageResult,
+            "Загружаем сообщение..."
+        );
+
         try {
-            const response = await fetch("/api/message");
+            const response =
+                await fetch("/api/message");
 
             if (response.status === 401) {
                 window.location.href = "/login";
@@ -111,57 +267,117 @@ if (messageForm) {
             }
 
             if (!response.ok) {
-                messageResult.textContent =
-                    "Не удалось загрузить сообщение.";
+                showResult(
+                    messageResult,
+                    "Не удалось загрузить сообщение.",
+                    "error"
+                );
+
                 return;
             }
 
             const data = await response.json();
 
             messageText.value = data.text;
+
+            if (data.text) {
+                showResult(
+                    messageResult,
+                    "Сообщение загружено.",
+                    "success"
+                );
+            } else {
+                showResult(
+                    messageResult,
+                    "Пока здесь ничего не сохранено."
+                );
+            }
         } catch (error) {
             console.error(
                 "Ошибка загрузки сообщения:",
-                error,
+                error
             );
 
-            messageResult.textContent =
-                "Не удалось связаться с сервером.";
+            showResult(
+                messageResult,
+                "Не удалось связаться с сервером.",
+                "error"
+            );
         }
     };
 
-    messageForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
 
-        try {
-            const response = await fetch("/api/message", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    text: messageText.value,
-                }),
-            });
+    messageForm.addEventListener(
+        "submit",
+        async (event) => {
+            event.preventDefault();
 
-            const data = await response.json();
+            showResult(messageResult, "");
 
-            if (response.status === 401) {
-                window.location.href = "/login";
-                return;
-            }
-
-            messageResult.textContent = data.message;
-        } catch (error) {
-            console.error(
-                "Ошибка сохранения сообщения:",
-                error,
+            setButtonLoading(
+                saveButton,
+                true,
+                "Сохраняем..."
             );
 
-            messageResult.textContent =
-                "Не удалось связаться с сервером.";
+            try {
+                const response = await fetch(
+                    "/api/message",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json",
+                        },
+
+                        body: JSON.stringify({
+                            text: messageText.value,
+                        }),
+                    }
+                );
+
+                const data = await response.json();
+
+                if (response.status === 401) {
+                    window.location.href = "/login";
+                    return;
+                }
+
+                if (!response.ok) {
+                    showResult(
+                        messageResult,
+                        data.message,
+                        "error"
+                    );
+
+                    return;
+                }
+
+                showResult(
+                    messageResult,
+                    data.message,
+                    "success"
+                );
+            } catch (error) {
+                console.error(
+                    "Ошибка сохранения сообщения:",
+                    error
+                );
+
+                showResult(
+                    messageResult,
+                    "Не удалось связаться с сервером.",
+                    "error"
+                );
+            } finally {
+                setButtonLoading(
+                    saveButton,
+                    false
+                );
+            }
         }
-    });
+    );
 
     loadMessage();
 }
@@ -169,31 +385,52 @@ if (messageForm) {
 
 // Выход
 
-// Выход
-
-const logoutButton = document.getElementById("logoutBtn");
+const logoutButton =
+    document.getElementById("logoutBtn");
 
 if (logoutButton) {
-    logoutButton.addEventListener("click", async () => {
-        try {
-            const response = await fetch("/api/logout", {
-                method: "POST",
-            });
+    logoutButton.addEventListener(
+        "click",
+        async () => {
+            setButtonLoading(
+                logoutButton,
+                true,
+                "Выходим..."
+            );
 
-            if (!response.ok) {
-                console.error(
-                    "Не удалось выполнить выход"
+            try {
+                const response = await fetch(
+                    "/api/logout",
+                    {
+                        method: "POST",
+                    }
                 );
 
-                return;
-            }
+                if (!response.ok) {
+                    console.error(
+                        "Не удалось выполнить выход"
+                    );
 
-            window.location.href = "/";
-        } catch (error) {
-            console.error(
-                "Ошибка запроса выхода:",
-                error,
-            );
+                    setButtonLoading(
+                        logoutButton,
+                        false
+                    );
+
+                    return;
+                }
+
+                window.location.href = "/";
+            } catch (error) {
+                console.error(
+                    "Ошибка запроса выхода:",
+                    error
+                );
+
+                setButtonLoading(
+                    logoutButton,
+                    false
+                );
+            }
         }
-    });
+    );
 }
