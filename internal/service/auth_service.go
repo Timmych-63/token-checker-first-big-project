@@ -248,6 +248,26 @@ func (s *AuthService) AuthenticateSessionToken(
 	return session.UserID, nil
 }
 
+func (s *AuthService) LogoutUser(token string) error {
+	if strings.TrimSpace(token) == "" {
+		return nil
+	}
+
+	tokenHash := hashSessionToken(token)
+
+	err := s.sessionRepository.DeleteByTokenHash(
+		tokenHash,
+	)
+	if err != nil {
+		return fmt.Errorf(
+			"не удалось удалить сессию пользователя: %w",
+			err,
+		)
+	}
+
+	return nil
+}
+
 func generateSessionToken() (
 	string,
 	string,

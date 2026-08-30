@@ -169,10 +169,31 @@ if (messageForm) {
 
 // Выход
 
+// Выход
+
 const logoutButton = document.getElementById("logoutBtn");
 
 if (logoutButton) {
-    logoutButton.addEventListener("click", () => {
-        window.location.href = "/";
+    logoutButton.addEventListener("click", async () => {
+        try {
+            const response = await fetch("/api/logout", {
+                method: "POST",
+            });
+
+            if (!response.ok) {
+                console.error(
+                    "Не удалось выполнить выход"
+                );
+
+                return;
+            }
+
+            window.location.href = "/";
+        } catch (error) {
+            console.error(
+                "Ошибка запроса выхода:",
+                error,
+            );
+        }
     });
 }

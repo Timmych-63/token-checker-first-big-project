@@ -29,6 +29,7 @@ func RegisterAPIRoutes(
 
 	api.POST("/register", handler.registerUser)
 	api.POST("/login", handler.loginUser)
+	api.POST("/logout", handler.logoutUser)
 }
 
 func (h *APIHandler) registerUser(c *gin.Context) {
@@ -151,6 +152,37 @@ func (h *APIHandler) loginUser(c *gin.Context) {
 		http.StatusOK,
 		model.LoginResponse{
 			Message: "вход выполнен",
+		},
+	)
+}
+
+func (h *APIHandler) logoutUser(c *gin.Context) {
+	token, err := c.Cookie(sessionCookieName)
+
+	if err == nil && token != "" {
+		err = h.authService.LogoutUser(token)
+		if err != nil {
+			log.Printf(
+				"Ошибка выхода пользователя: %v",
+				err,
+			)
+
+			c.JSON(
+				http.StatusInternalServerError,
+				gin.H{
+					"message": "внутренняя ошибка сервера",
+				},
+			)
+			return
+		}
+	}
+
+	clearSessionCookie(c)
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"message": "выход выполнен",
 		},
 	)
 }
