@@ -35,15 +35,17 @@ if (registerForm) {
 
             result.textContent = data.message;
         } catch (error) {
-            console.error("Ошибка запроса регистрации:", error);
+            console.error(
+                "Ошибка запроса регистрации:",
+                error,
+            );
 
-            result.textContent = "Не удалось связаться с сервером.";
+            result.textContent =
+                "Не удалось связаться с сервером.";
         }
     });
 }
 
-
-// Вход
 
 // Вход
 
@@ -79,7 +81,10 @@ if (loginForm) {
 
             window.location.href = "/cabinet";
         } catch (error) {
-            console.error("Ошибка запроса входа:", error);
+            console.error(
+                "Ошибка запроса входа:",
+                error,
+            );
 
             result.textContent =
                 "Не удалось связаться с сервером.";
@@ -93,17 +98,72 @@ if (loginForm) {
 const messageForm = document.getElementById("messageForm");
 
 if (messageForm) {
-    messageForm.addEventListener("submit", (event) => {
+    const messageText = document.getElementById("messageText");
+    const messageResult = document.getElementById("messageResult");
+
+    const loadMessage = async () => {
+        try {
+            const response = await fetch("/api/message");
+
+            if (response.status === 401) {
+                window.location.href = "/login";
+                return;
+            }
+
+            if (!response.ok) {
+                messageResult.textContent =
+                    "Не удалось загрузить сообщение.";
+                return;
+            }
+
+            const data = await response.json();
+
+            messageText.value = data.text;
+        } catch (error) {
+            console.error(
+                "Ошибка загрузки сообщения:",
+                error,
+            );
+
+            messageResult.textContent =
+                "Не удалось связаться с сервером.";
+        }
+    };
+
+    messageForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        const message = document.getElementById("messageText").value;
-        const result = document.getElementById("messageResult");
+        try {
+            const response = await fetch("/api/message", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    text: messageText.value,
+                }),
+            });
 
-        console.log("Сообщение:", message);
+            const data = await response.json();
 
-        result.textContent =
-            "Пока сообщение просто выводится в консоль.";
+            if (response.status === 401) {
+                window.location.href = "/login";
+                return;
+            }
+
+            messageResult.textContent = data.message;
+        } catch (error) {
+            console.error(
+                "Ошибка сохранения сообщения:",
+                error,
+            );
+
+            messageResult.textContent =
+                "Не удалось связаться с сервером.";
+        }
     });
+
+    loadMessage();
 }
 
 
@@ -113,8 +173,6 @@ const logoutButton = document.getElementById("logoutBtn");
 
 if (logoutButton) {
     logoutButton.addEventListener("click", () => {
-        console.log("Выход из кабинета");
-
         window.location.href = "/";
     });
 }

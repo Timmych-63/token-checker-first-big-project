@@ -70,9 +70,15 @@ func main() {
 
 	sessionRepository := repository.NewSessionRepository(db)
 
+	messageRepository := repository.NewMessageRepository(db)
+
 	authService := service.NewAuthService(
 		userRepository,
 		sessionRepository,
+	)
+
+	messageService := service.NewMessageService(
+		messageRepository,
 	)
 
 	router := gin.Default()
@@ -94,6 +100,12 @@ func main() {
 	handlers.RegisterAPIRoutes(
 		router,
 		authService,
+	)
+
+	handlers.RegisterMessageRoutes(
+		router,
+		authService,
+		messageService,
 	)
 
 	address := ":" + cfg.AppPort
